@@ -55,9 +55,8 @@ MODEL="${WHISPER_ROOT}/models/ggml-medium.en.bin"
 - `PGM` must point to the compiled `whisper-cli` binary.
 - `MODEL` must point to the GGML model file you want to use (e.g., `ggml-medium.en.bin`).
 
-**In `SKILL.md`**, the path to `transcribe.sh` is referenced as
-an instruction for Claude. If you clone this repository to a location other than
-`~/github.com/jftuga/transcript-critic/`, update that path in `SKILL.md` accordingly.
+> [!Note]
+> In `SKILL.md`, the paths to `transcribe.sh` and `ANALYSIS_PROMPT.md` are referenced as instructions for Claude. If you clone this repository to a location other than `~/github.com/jftuga/transcript-critic/`, update those paths in `SKILL.md` accordingly.
 
 ## Usage
 
@@ -74,7 +73,7 @@ Claude will:
 
 1. **Detect the input type** (`.vtt` file, audio file, or URL).
 2. **Convert or download** the audio as needed using `ffmpeg` and `yt-dlp`.
-3. **Transcribe** the audio to `.vtt` format via `whisper.cpp`.
+3. **Transcribe** the audio to `.txt` and `.vtt` format via `whisper.cpp`.
 4. **Analyze** the transcript using the prompt template and write a structured `.md` summary.
 
 ## How it works
@@ -82,10 +81,10 @@ Claude will:
 The skill is composed of two parts:
 
 - **`SKILL.md`** -- The skill definition file. It tells Claude how to handle each input type,
-  which shell script to invoke, and how to produce the final analysis. Claude Code reads this
+  to invoke `transcribe.sh`, and how to produce the final analysis. Claude Code reads this
   file when the `/transcribe` command is invoked.
 
-- **`transcribe.sh`** -- Accepts either a local audio file or a URL. Local audio files are
+- **`transcribe.sh`** -- Accepts either a local audio/video file or a URL. Local, non-audio files are
   converted to MP3 via `ffmpeg`; URLs are downloaded and extracted as MP3 via `yt-dlp`. In both
   cases, `whisper-cli` is run to produce `.txt` and `.vtt` transcription files. Because `yt-dlp`
   is used, audio can be downloaded and transcribed from
@@ -97,16 +96,17 @@ The skill is composed of two parts:
 The file `ANALYSIS_PROMPT.md` is the prompt template that drives the analysis
 step. It instructs Claude to produce a structured markdown document with the following sections:
 
-- **Overview** -- A concise thesis summary.
-- **Key Terms and Concepts** -- Definitions anchored to first-mention timestamps.
-- **Detailed Summary** -- Section-by-section breakdown with timestamp ranges.
-- **Scripture References** -- Included only when the content is theological.
-- **Evidentiary Notes** -- Categorizes each claim by its type of support (anecdotal, appeal to
-  authority, logical argument, or cited source).
-- **Logical Fallacies** -- Identifies reasoning errors using standard fallacy types.
-- **Questions and Underdeveloped Areas** -- Flags ambiguities and gaps.
+| Section | Description |
+|---------|-------------|
+| **Overview** | A concise thesis summary. |
+| **Key Terms and Concepts** | Definitions anchored to first-mention timestamps. |
+| **Detailed Summary** | Section-by-section breakdown with timestamp ranges. |
+| **Scripture References** | Included only when the content is theological. |
+| **Evidentiary Notes** | Categorizes each claim by its type of support (anecdotal, appeal to authority, logical argument, or cited source). |
+| **Logical Fallacies** | Identifies reasoning errors using standard fallacy types. |
+| **Questions and Underdeveloped Areas** | Flags ambiguities and gaps. |
 
-This prompt is effective because it enforces objectivity -- Claude is explicitly told to analyze
+This prompt is effective because it enforces objectivity because Claude is explicitly told to analyze
 based solely on the transcript content without injecting prior knowledge about the speaker or
 topic. It requires timestamp citations throughout, grounding every observation in a specific
 moment. The evidentiary notes and logical fallacy sections push the analysis beyond simple
