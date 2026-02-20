@@ -41,7 +41,7 @@ Once you have the `.vtt` file:
    ~/github.com/jftuga/transcript-critic/ANALYSIS_PROMPT.md
    ```
 
-4. **Replace `[TITLE]`** in the prompt with the inferred title.
+4. **Replace `[TITLE]`** in the prompt with the inferred title. **Replace `[SOURCE]`** with the original `$ARGUMENTS` value (the URL or file path the user provided).
 
 5. **Read the entire `.vtt` file** using the Read tool. If it is very large, read it in chunks until you have ingested all of it. Do not begin summarizing until you have read everything.
 
