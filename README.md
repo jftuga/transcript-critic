@@ -9,7 +9,7 @@ the rest: downloading, converting, transcribing, and producing a detailed markdo
 
 ---
 
-[Prerequisites](#prerequisites) | [Installation](#installation) | [Usage](#usage) | [How it works](#how-it-works) | [Transcript summary prompt](#transcript-summary-prompt) | [Personal Project Disclosure](#personal-project-disclosure)
+[Prerequisites](#prerequisites) | [Installation](#installation) | [Usage](#usage) | [How it works](#how-it-works) | [Transcript summary prompt](#transcript-summary-prompt) | [Permissions](#permissions) | [Personal Project Disclosure](#personal-project-disclosure)
 
 ---
 
@@ -28,17 +28,27 @@ own risk.** The author assumes no liability for any damages arising from its use
 | [ffmpeg](https://ffmpeg.org/) | Audio format conversion |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Downloading audio from YouTube and other sites |
 | [Claude Code](https://code.claude.com/) | CLI for Claude that supports custom skills |
+| [Python 3](https://www.python.org/) | Used by the install script to update Claude Code settings |
 
 ## Installation
 
 ### 1. Install the skill
 
-Copy `SKILL.md` into Claude Code's global skills directory:
+Run the install script from the root of this repository:
 
 ```bash
-mkdir -p ~/.claude/skills/transcribe
-cp SKILL.md ~/.claude/skills/transcribe/SKILL.md
+./install.sh
 ```
+
+This will:
+- Copy `SKILL.md` into Claude Code's global skills directory (`~/.claude/skills/transcribe/`).
+- Add a permission rule to `~/.claude/settings.json` so that `/transcribe` can read
+  files from this repository (e.g., `ANALYSIS_PROMPT.md`) without prompting.
+
+> [!Note]
+> If you prefer to install manually, copy `SKILL.md` to `~/.claude/skills/transcribe/SKILL.md`
+> and add the permission rule shown in the [Permissions](#permissions) section to the
+> `permissions.allow` array in `~/.claude/settings.json`.
 
 ### 2. Configure script paths
 
@@ -78,7 +88,7 @@ Claude will:
 
 ## How it works
 
-The skill is composed of two parts:
+The project is composed of the following files:
 
 - **`SKILL.md`** -- The skill definition file. It tells Claude how to handle each input type,
   to invoke `transcribe.sh`, and how to produce the final analysis. Claude Code reads this
@@ -86,10 +96,20 @@ The skill is composed of two parts:
 
 - **`transcribe.sh`** -- Accepts either a local audio/video file or a URL. Local, non-audio files are
   converted to MP3 via `ffmpeg`; URLs are downloaded and extracted as MP3 via `yt-dlp`. In both
-  cases, `whisper-cli` is run to produce `.txt` and `.vtt` transcription files. Because `yt-dlp`
+  cases, `whisper-cli` is run to produce `.txt` and `.vtt` transcription files. Empty lines are
+  also stripped from the `.vtt` output to reduce token usage during analysis. Because `yt-dlp`
   is used, audio can be downloaded and transcribed from
   [many websites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md) -- not just
   YouTube.
+
+- **`ANALYSIS_PROMPT.md`** -- The prompt template that drives the analysis step. See
+  [Transcript summary prompt](#transcript-summary-prompt) for details.
+
+- **`install.sh`** -- Copies `SKILL.md` into Claude Code's global skills directory and
+  calls `add_permission.py` to configure the required permission rule.
+
+- **`add_permission.py`** -- Adds a permission rule to `~/.claude/settings.json`, creating
+  the file if it does not exist or merging into existing settings.
 
 ## Transcript summary prompt
 
@@ -99,6 +119,7 @@ step. It instructs Claude to produce a structured markdown document with the fol
 | Section | Description |
 |---------|-------------|
 | **Overview** | A concise thesis summary. |
+| **Source Material** | Link or path to the original source. |
 | **Key Terms and Concepts** | Definitions anchored to first-mention timestamps. |
 | **Detailed Summary** | Section-by-section breakdown with timestamp ranges. |
 | **Scripture References** | Included only when the content is theological. |
@@ -113,6 +134,32 @@ moment. The evidentiary notes and logical fallacy sections push the analysis bey
 summarization into critical evaluation, categorizing claims by the strength of their supporting
 evidence and surfacing reasoning errors. The result is an analysis that is structured,
 verifiable, and avoids the uncritical paraphrasing that plagues most AI-generated summaries.
+
+## Permissions
+
+Because `/transcribe` is a global skill that runs from any directory, its permission
+rules must live in the **global** Claude Code settings file (`~/.claude/settings.json`),
+not in a project-level `.claude/settings.json`.
+
+The `install.sh` script automatically adds the required rule. If you need to add it
+manually, ensure your `~/.claude/settings.json` contains:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Read(~/github.com/jftuga/transcript-critic/**)"
+    ]
+  }
+}
+```
+
+This allows Claude to read `ANALYSIS_PROMPT.md` and other files from this repository
+without prompting. Empty-line removal from `.vtt` files is handled directly by
+`transcribe.sh`, so no separate Bash permission is needed.
+
+> [!Note]
+> If you cloned this repository to a different path, update the `Read(...)` rule accordingly.
 
 ## Personal Project Disclosure
 
