@@ -62,6 +62,9 @@ transcribe_audio() {
         --model "${MODEL}" \
         "${MP3}"
 
+    # Remove empty lines from .vtt to reduce token usage during analysis
+    sed -i '' '/^$/d' "${BASENAME}.vtt"
+
     echo "✅ Done: ${BASENAME}.txt and ${BASENAME}.vtt"
 }
 

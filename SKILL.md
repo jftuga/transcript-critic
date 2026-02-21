@@ -28,28 +28,22 @@ Determine the input type and act accordingly:
 
 Once you have the `.vtt` file:
 
-1. **Remove empty lines** from the `.vtt` file to reduce token usage:
-   ```
-   sed -i '' '/^$/d' filename.vtt
-   ```
-   Replace `filename.vtt` with the actual `.vtt` filename.
+1. **Infer the title** from the `.vtt` filename. Convert it to a natural, human-readable title (e.g., `My_Cool_Video.vtt` might become "My Cool Video"). Use your best judgment.
 
-2. **Infer the title** from the `.vtt` filename. Convert it to a natural, human-readable title (e.g., `My_Cool_Video.vtt` might become "My Cool Video"). Use your best judgment.
-
-3. **Read the prompt template** from:
+2. **Read the prompt template** from:
    ```
    ~/github.com/jftuga/transcript-critic/ANALYSIS_PROMPT.md
    ```
 
-4. **Replace `[TITLE]`** in the prompt with the inferred title. **Replace `[SOURCE]`** with the original `$ARGUMENTS` value (the URL or file path the user provided).
+3. **Replace `[TITLE]`** in the prompt with the inferred title. **Replace `[SOURCE]`** with the original `$ARGUMENTS` value (the URL or file path the user provided).
 
-5. **Read the entire `.vtt` file** using the Read tool. If it is very large, read it in chunks until you have ingested all of it. Do not begin summarizing until you have read everything.
+4. **Read the entire `.vtt` file** using the Read tool. If it is very large, read it in chunks until you have ingested all of it. Do not begin summarizing until you have read everything.
 
-6. **Check if the output file already exists.** The output filename is the same as the `.vtt` file but with a `.md` extension. If the `.md` file already exists, ask the user:
+5. **Check if the output file already exists.** The output filename is the same as the `.vtt` file but with a `.md` extension. If the `.md` file already exists, ask the user:
    - **Overwrite** the existing file
    - **Rename** (prompt the user for a new filename)
 
-7. **Generate the analysis** following all instructions from the prompt template. Write the result to the `.md` output file using the Write tool.
+6. **Generate the analysis** following all instructions from the prompt template. Write the result to the `.md` output file using the Write tool.
 
 ## Important Notes
 
