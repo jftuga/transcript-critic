@@ -24,6 +24,15 @@ Provide a structured summary with the following sections:
 ## Overview
 A 3-5 sentence high-level summary of the video's thesis and scope.
 
+## Source Material
+- **Source:** [SOURCE]
+
+Formatting rules for this section:
+- If the source is a URL, render it as a markdown link: `[URL](URL)` (the link text and href are identical).
+- If the source is a local file path, render it as inline code: `` `filename` ``.
+- Always use exactly one bullet point with the bold label **Source:** followed by the value.
+- Do not add any additional commentary, description, or metadata to this section.
+
 ## Key Terms and Concepts
 A list of important terms, concepts, or frameworks introduced by the speaker, each with a definition or explanation based on what the speaker said or what can be directly inferred from context. Include the timestamp of the first mention. Use the format:
 - **Term** `[HH:MM:SS]`: Definition
